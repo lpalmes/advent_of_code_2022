@@ -1,3 +1,8 @@
 (executables
- (public_names day1 day2)
- (names day1 day2))
+ (public_names day1 day2 day3)
+ (names day1 day2 day3))
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
+

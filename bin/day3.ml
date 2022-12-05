@@ -35,7 +35,7 @@ let () = print_endline (string_of_int value)
 
 (* part 2 *)
 (* utility function to map groups of three items, 
-   fails it last items are not in group of three *)
+   fails if last items are not in group of three *)
 let rec map_in_3 f = function
   | [] -> []
   | h1 :: h2 :: h3 :: l ->

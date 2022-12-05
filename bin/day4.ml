@@ -19,8 +19,7 @@ let contains_range a b =
   a1 <= b1 && b2 <= a2
 ;;
 
-(* let print_range ((a1, a2), (b1, b2)) = Printf.printf "\n%d-%d, %d-%d" a1 a2 b1 b2 *)
-
+let print_range ((a1, a2), (b1, b2)) = Printf.printf "\n%d-%d, %d-%d" a1 a2 b1 b2
 let fully_contains (a, b) = contains_range a b || contains_range b a
 
 let pairs =
@@ -30,4 +29,27 @@ let pairs =
   |> List.fold_left ( + ) 0
 ;;
 
-let () = print_endline (string_of_int pairs)
+let () = Printf.printf "\n Contains: %d" pairs
+
+(* part 2 *)
+
+(*
+a1 --- a2 
+   b1 --- b2 
+*)
+let range_overlap a b =
+  let a1, a2 = a in
+  let b1, _ = b in
+  a1 <= b1 && b1 <= a2
+;;
+
+let overlaps (a, b) = range_overlap a b || range_overlap b a
+
+let overlaps_n =
+  List.map parse_line file
+  |> List.map overlaps
+  |> List.map (fun a -> if a == true then 1 else 0)
+  |> List.fold_left ( + ) 0
+;;
+
+let () = Printf.printf "\n Overlaps: %d" overlaps_n

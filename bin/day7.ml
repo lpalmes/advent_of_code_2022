@@ -112,17 +112,6 @@ and calculate_content_size fs ss path = function
   | Dir d -> calculate_dir_size fs ss (handle_path path d)
 ;;
 
-let rec print_dirs fs fs_size path =
-  let size = Hashtbl.find fs_size path in
-  Printf.printf "\n%s %d" path size;
-  let dir = Hashtbl.find fs path in
-  SetFs.iter
-    (function
-     | Dir d -> print_dirs fs fs_size (handle_path path d)
-     | _ -> ())
-    dir
-;;
-
 let commands = parse_lines file
 
 let fs, fs_size =
@@ -133,5 +122,30 @@ let fs, fs_size =
   fs, fs_size
 ;;
 
-let total = Hashtbl.fold (fun k v a -> (if v < 100_000 then v else 0) + a) fs_size 0
-let () = Printf.printf "\n Sum: %d" total
+let sum = Hashtbl.fold (fun _ v a -> (if v < 100_000 then v else 0) + a) fs_size 0
+let () = Printf.printf "\n Sum: %d" sum
+
+let rec dirs fs fs_size dir =
+  let size = Hashtbl.find fs_size dir in
+  let content = Hashtbl.find fs dir |> SetFs.to_seq |> List.of_seq in
+  let sizes =
+    List.filter_map
+      (function
+       | Dir d -> Some (dirs fs fs_size (handle_path dir d))
+       | _ -> None)
+      content
+    |> List.concat
+  in
+  size :: sizes
+;;
+
+let total_size = 70_000_000
+let unused_space = total_size - Hashtbl.find fs_size "/"
+let dir_sizes = dirs fs fs_size "/"
+
+let smallest =
+  List.filter (fun i -> unused_space + i >= 30_000_000) dir_sizes
+  |> List.fold_left min total_size
+;;
+
+let () = Printf.printf "\n Smallest: %d" smallest
